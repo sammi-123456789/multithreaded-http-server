@@ -1,28 +1,17 @@
+package com.sammi.server.core;
+
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class HelloServer {
-    public static void main(String[] args) throws IOException {
-        int port = 8080;
-        int poolSize = Runtime.getRuntime().availableProcessors() * 2;
-        ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
+public class ClientHandler {
+    private final Socket client;
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started on http://localhost:" + port
-                    + " with " + poolSize + " threads");
-
-            while (true) {
-                Socket client = serverSocket.accept();
-                threadPool.submit(() -> handleClient(client));
-            }
-        }
+    public ClientHandler(Socket client) {
+        this.client = client;
     }
 
-    private static void handleClient(Socket client) {
+    public void handle() {
         try (client) {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(client.getInputStream()));
