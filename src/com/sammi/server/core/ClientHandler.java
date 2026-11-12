@@ -4,15 +4,18 @@ import com.sammi.server.http.HttpRequest;
 import com.sammi.server.http.HttpRequestParser;
 import com.sammi.server.http.HttpResponse;
 import com.sammi.server.http.HttpStatus;
+import com.sammi.server.routing.Router;
 
 import java.io.*;
 import java.net.Socket;
 
 public class ClientHandler {
     private final Socket client;
+    private final Router router;
 
-    public ClientHandler(Socket client) {
+    public ClientHandler(Socket client, Router router) {
         this.client = client;
+        this.router = router;
     }
 
     public void handle() {
@@ -27,7 +30,7 @@ public class ClientHandler {
                 if (request == null) {
                     return;
                 }
-                response = buildResponse(request);
+                response = router.route(request);
                 System.out.println(Thread.currentThread().getName() + " -> "
                         + request.getMethod() + " " + request.getPath()
                         + " " + response.getStatus().getCode());
@@ -42,16 +45,5 @@ public class ClientHandler {
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
-    }
-
-    // Abhi ke liye simple logic. Agle step mein iski jagah Router aayega.
-    private HttpResponse buildResponse(HttpRequest request) {
-        if (!request.getMethod().equals("GET")) {
-            return HttpResponse.text(HttpStatus.METHOD_NOT_ALLOWED, "405 Method Not Allowed");
-        }
-        if (request.getPath().equals("/")) {
-            return HttpResponse.text(HttpStatus.OK, "Hello World");
-        }
-        return HttpResponse.text(HttpStatus.NOT_FOUND, "404 Not Found: " + request.getPath());
     }
 }

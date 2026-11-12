@@ -15,7 +15,9 @@ public class HttpResponse {
         this.status = status;
     }
 
-    public HttpStatus getStatus() { return status; }
+    public HttpStatus getStatus() {
+        return status;
+    }
 
     public void setHeader(String name, String value) {
         headers.put(name, value);
@@ -33,6 +35,14 @@ public class HttpResponse {
         return response;
     }
 
+    // JSON response banane ka shortcut
+    public static HttpResponse json(HttpStatus status, String json) {
+        HttpResponse response = new HttpResponse(status);
+        response.setHeader("Content-Type", "application/json; charset=UTF-8");
+        response.setBody(json.getBytes(StandardCharsets.UTF_8));
+        return response;
+    }
+
     // Response ko HTTP format mein client ko bhejo
     public void send(OutputStream out) throws IOException {
         headers.put("Content-Length", String.valueOf(body.length));
@@ -40,10 +50,10 @@ public class HttpResponse {
 
         StringBuilder head = new StringBuilder();
         head.append("HTTP/1.1 ").append(status.getCode())
-            .append(" ").append(status.getReason()).append("\r\n");
+                .append(" ").append(status.getReason()).append("\r\n");
         for (Map.Entry<String, String> header : headers.entrySet()) {
             head.append(header.getKey()).append(": ")
-                .append(header.getValue()).append("\r\n");
+                    .append(header.getValue()).append("\r\n");
         }
         head.append("\r\n");
 
